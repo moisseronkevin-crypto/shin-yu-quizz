@@ -1,0 +1,10 @@
+# Site 100 % statique : aucun build (ni Parcel ni npm). Ce fichier remplace les réglages de build saisis dans Netlify.
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+    X-Content-Type-Options = "nosniff"
