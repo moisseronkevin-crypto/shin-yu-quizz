@@ -70,7 +70,16 @@
   let slowT = setTimeout(() => toast('Le serveur se réveille, cela peut prendre une minute…'), 4000);
   socket.on('connect', () => { clearTimeout(slowT); setConn('En ligne', 'chip-ok'); busy(null); });
   socket.on('disconnect', () => setConn('Reconnexion…', 'chip-off'));
-  socket.on('connect_error', () => setConn('Serveur injoignable', 'chip-off'));
+  let lastErr = 0;
+  socket.on('connect_error', (err) => {
+    setConn('Serveur injoignable', 'chip-off');
+    if (Date.now() - lastErr < 15000) return;
+    lastErr = Date.now();
+    const mixed = location.protocol === 'https:' && SERVER.startsWith('http:');
+    toast(mixed ? 'Le serveur doit être en https:// (adresse http bloquée par le navigateur).'
+      : 'Connexion au serveur impossible (' + (err && err.message ? err.message : 'erreur') + ').');
+    console.warn('[quiz] connect_error vers', SERVER, err);
+  });
 
   // ---------- accueil ----------
   $('btn-solo').onclick = () => socket.emit('create_room', { ...profile(), solo: true }) ;
@@ -155,7 +164,9 @@
   function leave() { socket.emit('leave_room'); room = null; round = null; cancelAnimationFrame(timerRaf); show('s-home'); }
 
   socket.on('room_joined', (d) => {
+    const auto = soloPending && d.maxPlayers === 1 && !d.resumed;
     room = d; soloPending = false; busy(null); $('btn-start').disabled = false;
+    if (auto) { socket.emit('start_game', d.code); return; }
     if (d.status === 'PLAYING') { show('s-game'); renderGamePlayers(); }
     else { renderLobby(); show('s-lobby'); }
     if (d.resumed) toast('Tu as retrouvé ta partie.');
