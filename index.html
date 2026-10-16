@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0b12">
+  <title>Quiz Shin Yu — devine l'anime, défie tes amis</title>
+  <meta name="description" content="Affiches, personnages, synopsis : devine l'anime en solo ou en salle multijoueur.">
+  <link rel="icon" href="https://yt3.googleusercontent.com/iJN9gvvicNleoqBr3CBGnOwUlbZx9uCOXM-AzpuZleuE1Vyn7uZs5IYSzU2BW_bUHR6Ch1qyeA=s120-c-k-c0x00ffffff-no-rj">
+  <link rel="apple-touch-icon" href="https://yt3.googleusercontent.com/iJN9gvvicNleoqBr3CBGnOwUlbZx9uCOXM-AzpuZleuE1Vyn7uZs5IYSzU2BW_bUHR6Ch1qyeA=s180-c-k-c0x00ffffff-no-rj">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DM+Sans:wght@400;500;700&family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+  <div class="bg-dots" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <img src="https://yt3.googleusercontent.com/iJN9gvvicNleoqBr3CBGnOwUlbZx9uCOXM-AzpuZleuE1Vyn7uZs5IYSzU2BW_bUHR6Ch1qyeA=s120-c-k-c0x00ffffff-no-rj" alt="" width="34" height="34" referrerpolicy="no-referrer">
+      <span>Shin Yu <b>Quiz</b></span>
+    </div>
+    <div class="top-r"><button id="snd" class="chip" type="button" aria-pressed="true" aria-label="Son activé">♪ Son</button><button id="conn" class="chip chip-wait" type="button" aria-label="État de la connexion au serveur">Connexion…</button></div>
+  </header>
+
+  <main>
+    <!-- ACCUEIL -->
+    <section id="s-home" class="screen">
+      <div class="hero">
+        <span class="kanji" aria-hidden="true">問</span>
+        <h1>Le quiz<br><em>anime</em></h1>
+        <p>Affiches, personnages, synopsis. Seul ou entre amis, trois vies pour tout donner.</p>
+      </div>
+
+      <div class="panel">
+        <h2><span class="tag-n">1</span> Ton personnage</h2>
+        <div class="me">
+          <div class="av-big" id="av-preview" aria-hidden="true"></div>
+          <label class="field grow">
+            <span>Pseudo</span>
+            <input id="nick" maxlength="16" autocomplete="nickname" placeholder="Ex. Sakura">
+          </label>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Type d'avatar">
+          <button class="tab" role="tab" type="button" data-tab="emoji" aria-selected="true">Emojis</button>
+          <button class="tab" role="tab" type="button" data-tab="chars" aria-selected="false">Personnages</button>
+          <button class="tab" role="tab" type="button" data-tab="photo" aria-selected="false">Ma photo</button>
+        </div>
+        <div class="avatars" id="avatars" role="radiogroup" aria-label="Choisis ton avatar"></div>
+        <div class="chars" id="chars" hidden></div>
+        <div class="photo-box" id="photo-box" hidden>
+          <input type="file" id="photo-file" accept="image/*" hidden>
+          <div class="actions">
+            <button class="btn" id="photo-pick" type="button">Choisir une photo</button>
+            <button class="btn btn-ghost" id="photo-clear" type="button" hidden>Retirer ma photo</button>
+          </div>
+          <p class="muted">Ta photo est réduite sur ton appareil puis montrée seulement aux joueurs de ta salle.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="tag-n">2</span> Choisis ton mode</h2>
+        <div class="modes">
+          <button class="mode" id="btn-solo" type="button"><span class="mi">一</span><b>Solo</b><small>Seul contre la montre</small></button>
+          <button class="mode" id="btn-create" type="button"><span class="mi">部</span><b>Salle</b><small>Crée et invite tes amis</small></button>
+          <form class="mode mode-join" id="join-form">
+            <span class="mi">入</span><b>Rejoindre</b>
+            <input id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="Code" aria-label="Code de la salle">
+            <button class="btn btn-primary" type="submit">Go</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Réglages de partie (solo ou salle) -->
+      <div class="panel panel-paper" id="setup" hidden>
+        <h2 id="setup-title">Réglages</h2>
+        <p class="lab">Types de questions</p>
+        <div class="toggles" id="mode-chips"></div>
+        <p class="lab">Longueur de la partie</p>
+        <div class="toggles" id="round-chips"></div>
+        <div id="room-opts">
+          <label class="field inline"><span>Joueurs max</span>
+            <select id="max-players"><option>2</option><option>4</option><option selected>8</option><option>12</option></select>
+          </label>
+          <label class="check"><input type="checkbox" id="is-public" checked> Visible dans la liste des salons</label>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-go" type="button">C'est parti</button>
+          <button class="btn btn-ghost" id="btn-setup-close" type="button">Annuler</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Salons ouverts</h2>
+        <ul id="rooms" class="list"></ul>
+        <p id="rooms-empty" class="muted">Aucun salon public pour le moment. Crée le premier.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Hall of fame</h2>
+        <ol id="board" class="list"></ol>
+        <p id="board-empty" class="muted">Le classement se remplit après la première partie.</p>
+      </div>
+    </section>
+
+    <!-- SALON -->
+    <section id="s-lobby" class="screen" hidden>
+      <div class="panel panel-paper center">
+        <p class="lab">Code de la salle</p>
+        <div class="code" id="lobby-code" aria-live="polite">----</div>
+        <div class="tags" id="lobby-tags"></div>
+        <div class="actions center-a">
+          <button class="btn" id="btn-copy" type="button">Copier le lien d'invitation</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Joueurs <span id="lobby-count" class="muted"></span></h2>
+        <ul id="lobby-players" class="list"></ul>
+        <p class="muted" id="lobby-hint"></p>
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-start" type="button">Lancer la partie</button>
+          <button class="btn btn-ghost" id="btn-leave" type="button">Quitter la salle</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- JEU -->
+    <section id="s-game" class="screen" hidden>
+      <div class="hud">
+        <span id="round-label" class="hud-r">Q 1</span>
+        <span id="combo" class="combo" hidden></span>
+        <span id="lives" class="lives" aria-label="Vies restantes"></span>
+      </div>
+      <div class="timer" aria-hidden="true"><div id="timer-bar"></div></div>
+      <div class="panel panel-paper question">
+        <div class="frame" id="q-frame" hidden><img id="q-img" alt=""></div>
+        <div class="duel" id="q-duel" hidden><div class="frame"><img id="d-img1" alt=""></div><span class="vs">VS</span><div class="frame"><img id="d-img2" alt=""></div></div>
+        <div class="audio" id="q-audio" hidden><div class="vinyl" id="vinyl" aria-hidden="true"></div><button class="btn" id="audio-btn" type="button">▶ Écouter</button></div>
+        <p id="q-sub" class="synopsis" hidden></p>
+        <h2 id="q-text"></h2>
+        <div class="options" id="options"></div>
+        <p id="q-status" class="status" role="status" aria-live="polite"></p>
+      </div>
+      <ul id="game-players" class="chips"></ul>
+      <div class="reacts" id="reacts" hidden></div>
+      <div class="fx" id="fx" aria-hidden="true"></div>
+    </section>
+
+    <!-- FIN -->
+    <section id="s-over" class="screen" hidden>
+      <div class="panel panel-paper center">
+        <span class="kanji kanji-sm" aria-hidden="true" id="over-kanji">終</span>
+        <h1 id="over-title">Partie terminée</h1>
+        <ol id="over-list" class="list ranking"></ol>
+        <div class="actions center-a">
+          <button class="btn btn-primary" id="btn-back-lobby" type="button">Rejouer</button>
+          <button class="btn btn-ghost" id="btn-quit" type="button">Quitter</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Réglage / diagnostic du serveur -->
+  <div class="overlay" id="srv" hidden role="dialog" aria-modal="true" aria-labelledby="srv-title">
+    <div class="sheet panel">
+      <h2 id="srv-title">Connexion au serveur</h2>
+      <p class="muted">Adresse du serveur du quiz (celle de ton service Railway).</p>
+      <input id="srv-url" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="https://xxxx.up.railway.app" aria-label="Adresse du serveur">
+      <ul id="srv-log" class="log" aria-live="polite"></ul>
+      <div class="actions">
+        <button class="btn" id="srv-test" type="button">Tester</button>
+        <button class="btn btn-primary" id="srv-save" type="button">Enregistrer</button>
+        <button class="btn btn-ghost" id="srv-close" type="button">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="player" preload="auto" playsinline></audio>
+  <div id="loading" class="overlay" hidden><div class="spinner"></div><p id="loading-text">Chargement…</p></div>
+  <div id="toast" class="toast" role="alert" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="config.js?v=4"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
